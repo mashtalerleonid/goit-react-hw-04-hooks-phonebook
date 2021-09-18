@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { Item } from "./ContactListItem.styled";
 
-function ContactListItem({ id, name, number, onDeleteContact }) {
+export default function ContactListItem({ id, name, number, onDeleteContact }) {
   return (
     <Item>
       {name}: {number}
@@ -18,5 +18,3 @@ ContactListItem.propTypes = {
   number: PropTypes.string.isRequired,
   onDeleteContact: PropTypes.func,
 };
-
-export default ContactListItem;

@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import ContactListItem from "components/Contacts/ContactListItem/";
 import { List } from "./ContactList.styled";
 
-function ContactList({ list, onDeleteContact }) {
+export default function ContactList({ list, onDeleteContact }) {
   return (
     <List>
       {list.map((item) => {
@@ -26,5 +26,3 @@ ContactList.propTypes = {
   onDeleteContact: PropTypes.func,
   list: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
-
-export default ContactList;

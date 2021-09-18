@@ -1,22 +1,21 @@
 import { v4 as uuidv4 } from "uuid";
-import React, { Component } from "react";
+import { useState } from "react";
 import ContactForm from "components/ContactForm";
 import Filter from "components/Filter";
 import ContactList from "components/Contacts/ContactList";
 import { Container } from "./App.styled";
+import useLocalStorage from "./hooks/useLocalStorage";
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: "",
-  };
+export default function App() {
+  const [contacts, setContacts] = useLocalStorage("contacts", []);
+  const [filter, setFilter] = useState("");
 
-  addContact = ({ name, number }) => {
+  const addContact = (name, number) => {
     const contact = { id: uuidv4(), name, number };
 
     let isAdded = false;
 
-    this.state.contacts.forEach((contact) => {
+    contacts.forEach((contact) => {
       if (contact.name === name) {
         isAdded = true;
         return;
@@ -25,34 +24,25 @@ class App extends Component {
 
     if (isAdded) {
       alert(`${name} is already in contacts`);
-      return;
+    } else {
+      setContacts((prev) => [...prev, contact]);
     }
-
-    this.setState((prevState) => ({
-      contacts: [...prevState.contacts, contact],
-    }));
   };
 
-  deleteContact = (contactId) => {
-    this.setState((prevState) => ({
-      contacts: prevState.contacts.filter(
-        (contact) => contact.id !== contactId
-      ),
-    }));
+  const deleteContact = (contactId) => {
+    setContacts((prev) => prev.filter((contact) => contact.id !== contactId));
   };
 
-  filterChange = (e) => {
+  const filterChange = (e) => {
     const { value } = e.target;
-    this.setState({ filter: value });
+    setFilter(value);
   };
 
-  filterBlur = (e) => {
-    this.setState({ filter: "" });
+  const filterBlur = (e) => {
+    setFilter("");
   };
 
-  getFilteredContacts = () => {
-    const { filter, contacts } = this.state;
-
+  const getFilteredContacts = () => {
     const normalizedFilter = filter.toLowerCase();
 
     return contacts.filter((contact) =>
@@ -60,42 +50,19 @@ class App extends Component {
     );
   };
 
-  componentDidMount() {
-    const parsedContacts = JSON.parse(localStorage.getItem("contacts"));
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
+  const filteredContacts = getFilteredContacts();
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
-      localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
-    }
-  }
-
-  render() {
-    const { filter } = this.state;
-
-    const filteredContacts = this.getFilteredContacts();
-
-    return (
-      <Container>
-        <h1>Phonebook</h1>
-        <ContactForm addContact={this.addContact} />
-
-        <h2>Contacts</h2>
-        <Filter
-          filterBlur={this.filterBlur}
-          filterChange={this.filterChange}
-          filter={filter}
-        />
-        <ContactList
-          list={filteredContacts}
-          onDeleteContact={this.deleteContact}
-        />
-      </Container>
-    );
-  }
+  return (
+    <Container>
+      <h1>Phonebook</h1>
+      <ContactForm addContact={addContact} />
+      <h2>Contacts</h2>
+      <Filter
+        filterBlur={filterBlur}
+        filterChange={filterChange}
+        filter={filter}
+      />
+      <ContactList list={filteredContacts} onDeleteContact={deleteContact} />
+    </Container>
+  );
 }
-
-export default App;
